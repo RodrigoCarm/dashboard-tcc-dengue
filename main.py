@@ -182,9 +182,8 @@ municipio = df_original["municipio_nome"].dropna().iloc[0] if "municipio_nome" i
 resumo = calcular_resumo(df)
 
 
-# =========================
-# Indicadores principais
-# =========================
+
+############ -> INICIO DOS INDICADORES
 st.subheader("Indicadores principais")
 
 col1, col2, col3, col4 = st.columns(4)
@@ -202,7 +201,7 @@ if semana_pico is not None:
 else:
     col3.metric("Semana de pico", "-")
 
-col4.metric("Maior incidência/100 mil", formatar_numero(resumo["incidencia_max"], 2))
+col4.metric("Maior incidência/Habitantes", f"{formatar_numero(int(semana_pico['casos']) / int(resumo['pop']) * 100, 2)}%")
 
 col5, col6, col7, col8 = st.columns(4)
 col5.metric("Semanas em vermelho", formatar_numero(resumo["semanas_vermelhas"]))
@@ -250,7 +249,7 @@ fig_casos.update_layout(
 fig_casos.update_yaxes(title_text="Casos", secondary_y=False)
 fig_casos.update_yaxes(title_text="Incidência por 100 mil", secondary_y=True)
 
-st.plotly_chart(fig_casos, use_container_width=True)
+st.plotly_chart(fig_casos, width="stretch")
 
 
 # =========================
@@ -273,7 +272,7 @@ fig_mes = px.bar(
 )
 fig_mes.update_layout(height=380)
 fig_mes.update_traces(textposition="outside")
-st.plotly_chart(fig_mes, use_container_width=True)
+st.plotly_chart(fig_mes, width="stretch")
 
 
 # =========================
@@ -298,7 +297,7 @@ fig_alerta = px.scatter(
 )
 fig_alerta.update_yaxes(tickmode="array", tickvals=[1, 2, 3, 4])
 fig_alerta.update_layout(height=380)
-st.plotly_chart(fig_alerta, use_container_width=True)
+st.plotly_chart(fig_alerta, width="stretch")
 
 
 # =========================
@@ -317,7 +316,7 @@ with col_rt:
     )
     fig_rt.add_hline(y=1, line_dash="dash", annotation_text="Rt = 1")
     fig_rt.update_layout(height=380)
-    st.plotly_chart(fig_rt, use_container_width=True)
+    st.plotly_chart(fig_rt, width="stretch")
 
 with col_prt:
     st.subheader("Probabilidade de Rt > 1")
@@ -330,7 +329,7 @@ with col_prt:
     )
     fig_prt.add_hline(y=0.95, line_dash="dash", annotation_text="Critério 0,95")
     fig_prt.update_layout(height=380)
-    st.plotly_chart(fig_prt, use_container_width=True)
+    st.plotly_chart(fig_prt, width="stretch")
 
 
 # =========================
@@ -349,7 +348,7 @@ with col_clima:
         labels={"data_ini_SE": "Semana", "value": "Temperatura média semanal", "variable": "Indicador"},
     )
     fig_temp.update_layout(height=380)
-    st.plotly_chart(fig_temp, use_container_width=True)
+    st.plotly_chart(fig_temp, width="stretch")
 
 with col_trans:
     transmissao_count = (
@@ -367,7 +366,7 @@ with col_trans:
     )
     fig_trans.update_layout(height=380)
     fig_trans.update_traces(textposition="outside")
-    st.plotly_chart(fig_trans, use_container_width=True)
+    st.plotly_chart(fig_trans, width="stretch")
 
 
 # =========================
@@ -402,7 +401,7 @@ colunas_exibir = [c for c in colunas_exibir if c in df.columns]
 
 st.dataframe(
     df[colunas_exibir],
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 

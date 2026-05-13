@@ -1,12 +1,9 @@
 import pandas as pd
 import os
-from cache_system.cache import CacheConfig
 
 class BaseArquivo():
     def __init__(self, pasta: str = 'volume'):
         self.pasta = os.path.join(".", pasta)
-        self.cache = CacheConfig()
-
 
     def __listar_arquivos_validos(self):
         return [arquivo for arquivo in os.listdir(self.pasta) if arquivo.endswith('.csv')]
@@ -15,13 +12,8 @@ class BaseArquivo():
     def carregar_arquivo(self) -> pd.DataFrame:
         arquivos_validos = self.__listar_arquivos_validos()
         
-        print('arquivos_validos: ', arquivos_validos)
         if len(arquivos_validos) < 1:
             raise ValueError('Nenhum arquivo válido encontrado')
-        
-        #cache_key = ''.join([str(x).strip().lower().replace('.csv', '_') for x in arquivos_validos])
-        #if volume_cache := self.cache.get_cache(cache_key):
-        #    return volume_cache
         
         lista_dataframes = []
         for arquivo in arquivos_validos:
@@ -37,7 +29,6 @@ class BaseArquivo():
             return pd.DataFrame()
         
         volume_concatenado = pd.concat(lista_dataframes, ignore_index=True)
-        #self.cache.set_cache(cache_key, volume_concatenado)
         return volume_concatenado
 
 
