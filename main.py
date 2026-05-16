@@ -128,7 +128,7 @@ def calcular_resumo(df: pd.DataFrame) -> dict:
 # =========================
 # Entrada dos dados
 # =========================
-st.title("Dashboard de Dengue - Ji-Paraná")
+st.title("Análise dos casos de dengue - Ji-Paraná")
 st.caption("Análise semanal dos casos de dengue, incidência, alerta, Rt, transmissão e clima.")
 
 df_original = carregar_dados()
@@ -279,6 +279,18 @@ st.plotly_chart(fig_mes, width="stretch")
 # Gráfico 3: nível de alerta
 # =========================
 st.subheader("Nível de alerta por semana")
+st.info(
+    """
+    O nível de alerta do **InfoDengue** resume a situação de transmissão no município a cada semana.
+    A classificação considera condições climáticas favoráveis, presença de casos, crescimento da
+    transmissão pelo Rt e incidência acima do padrão histórico.
+
+    **Verde:** clima desfavorável e baixa atividade viral.  
+    **Amarelo:** clima favorável e presença de pelo menos um caso.  
+    **Laranja:** incidência em crescimento, com Rt > 1 por pelo menos duas semanas consecutivas.  
+    **Vermelho:** incidência alta em relação ao histórico do município.
+    """
+)
 
 fig_alerta = px.scatter(
     df,
@@ -307,6 +319,7 @@ col_rt, col_prt = st.columns(2)
 
 with col_rt:
     st.subheader("Rt por semana")
+    st.caption("O Rt mede a tendência de transmissão da dengue, indicando quantos novos casos, em média, cada caso infectado pode gerar na população.")
     fig_rt = px.line(
         df,
         x="data_ini_SE",
@@ -319,13 +332,17 @@ with col_rt:
     st.plotly_chart(fig_rt, width="stretch")
 
 with col_prt:
-    st.subheader("Probabilidade de Rt > 1")
+    st.subheader("Probabilidade de transmissão em crescimento")
+    st.caption(
+        "Este gráfico mostra a probabilidade de o Rt estar acima de 1, "
+        "ou seja, o grau de confiança de que a transmissão está crescendo (p_rt1)."
+    )
     fig_prt = px.line(
         df,
         x="data_ini_SE",
         y="p_rt1",
         markers=True,
-        labels={"data_ini_SE": "Semana", "p_rt1": "p_rt1"},
+        labels={"data_ini_SE": "Semana", "p_rt1": "Probabilidade de Rt > 1"},
     )
     fig_prt.add_hline(y=0.95, line_dash="dash", annotation_text="Critério 0,95")
     fig_prt.update_layout(height=380)
@@ -337,36 +354,45 @@ with col_prt:
 # =========================
 st.subheader("Clima, receptividade e transmissão")
 
-col_clima, col_trans = st.columns(2)
+col_clima, col_umidade = st.columns(2)
 
 with col_clima:
+    df_temperatura = df.melt(
+        id_vars="data_ini_SE",
+        value_vars=["tempmin", "tempmed", "tempmax"],
+        var_name="Indicador",
+        value_name="Temperatura",
+    )
     fig_temp = px.line(
-        df,
+        df_temperatura,
         x="data_ini_SE",
-        y=["tempmin", "tempmed", "tempmax"],
+        y="Temperatura",
+        color="Indicador",
         markers=True,
-        labels={"data_ini_SE": "Semana", "value": "Temperatura média semanal", "variable": "Indicador"},
+        title="Evolução semanal da temperatura",
+        labels={"data_ini_SE": "Semana", "Temperatura": "Temperatura semanal", "Indicador": "Indicador"},
     )
     fig_temp.update_layout(height=380)
     st.plotly_chart(fig_temp, width="stretch")
 
-with col_trans:
-    transmissao_count = (
-        df.groupby("transmissao_desc", as_index=False)
-        .agg(semanas=("transmissao", "count"), casos=("casos", "sum"))
-        .sort_values("semanas", ascending=False)
+with col_umidade:
+    df_umidade = df.melt(
+        id_vars="data_ini_SE",
+        value_vars=["umidmin", "umidmed", "umidmax"],
+        var_name="Indicador",
+        value_name="Umidade",
     )
-    fig_trans = px.bar(
-        transmissao_count,
-        x="transmissao_desc",
-        y="semanas",
-        text="semanas",
-        hover_data={"casos": True},
-        labels={"transmissao_desc": "Evidência de transmissão", "semanas": "Semanas"},
+    fig_umidade = px.line(
+        df_umidade,
+        x="data_ini_SE",
+        y="Umidade",
+        color="Indicador",
+        markers=True,
+        title="Evolução semanal da Umidade",
+        labels={"data_ini_SE": "Semana", "Umidade": "Umidade semanal", "Indicador": "Indicador"},
     )
-    fig_trans.update_layout(height=380)
-    fig_trans.update_traces(textposition="outside")
-    st.plotly_chart(fig_trans, width="stretch")
+    fig_umidade.update_layout(height=380)
+    st.plotly_chart(fig_umidade, width="stretch")
 
 
 # =========================
@@ -399,13 +425,6 @@ colunas_exibir = [
 ]
 colunas_exibir = [c for c in colunas_exibir if c in df.columns]
 
-st.dataframe(
-    df[colunas_exibir],
-    width="stretch",
-    hide_index=True,
-)
-
-
 with st.expander("Dicionário rápido das principais colunas"):
     st.markdown(
         """
@@ -422,3 +441,9 @@ with st.expander("Dicionário rápido das principais colunas"):
         - **nivel_inc**: classificação da incidência em relação aos limiares pré-epidêmico e epidêmico.
         """
     )
+st.dataframe(
+    df[colunas_exibir],
+    width="stretch",
+    hide_index=True,
+)
+
