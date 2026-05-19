@@ -297,6 +297,16 @@ fig_alerta = px.scatter(
     x="data_ini_SE",
     y="nivel",
     size="casos",
+    color="nivel_alerta",
+    category_orders={
+        "nivel_alerta": ["1 - Verde", "2 - Amarelo", "3 - Laranja", "4 - Vermelho"],
+    },
+    color_discrete_map={
+        "1 - Verde": "#2ca02c",
+        "2 - Amarelo": "#f2c94c",
+        "3 - Laranja": "#f2994a",
+        "4 - Vermelho": "#d62728",
+    },
     hover_data={
         "semana_label": True,
         "casos": True,
