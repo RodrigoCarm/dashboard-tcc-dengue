@@ -10,6 +10,6 @@ class CacheConfig():
         with self.cache_lock:
             return self.cache_sistem.get(key)    
     
-    def set_cache(self, key: str, value: dict):
+    def set_cache(self, key: str, value):
         with self.cache_lock:
             self.cache_sistem[key] = value
