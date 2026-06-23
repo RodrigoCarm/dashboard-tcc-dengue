@@ -405,6 +405,109 @@ with col_umidade:
     st.plotly_chart(fig_umidade, width="stretch")
 
 
+st.subheader("Evolução semanal dos casos, clima e Rt")
+st.caption(
+    "As barras mostram os casos notificados no ano analisado, enquanto as linhas "
+    "apresentam a temperatura média, a umidade média e o Rt por semana."
+)
+
+fig_clima_rt = go.Figure()
+
+fig_clima_rt.add_trace(
+    go.Bar(
+        x=df["data_ini_SE"],
+        y=df["casos"],
+        name="Casos notificados",
+        marker_color="rgba(125, 190, 240, 0.34)",
+        hovertemplate="Semana: %{x|%d/%m/%Y}<br>Casos: %{y}<extra></extra>",
+        yaxis="y",
+    )
+)
+
+fig_clima_rt.add_trace(
+    go.Scatter(
+        x=df["data_ini_SE"],
+        y=df["tempmed"],
+        name="Temperatura média",
+        mode="lines+markers",
+        line=dict(color="#f2994a", width=2),
+        marker=dict(size=6),
+        hovertemplate="Semana: %{x|%d/%m/%Y}<br>Temperatura média: %{y:.2f} °C<extra></extra>",
+        yaxis="y2",
+    )
+)
+
+fig_clima_rt.add_trace(
+    go.Scatter(
+        x=df["data_ini_SE"],
+        y=df["umidmed"],
+        name="Umidade média",
+        mode="lines+markers",
+        line=dict(color="#27ae60", width=2),
+        marker=dict(size=6),
+        hovertemplate="Semana: %{x|%d/%m/%Y}<br>Umidade média: %{y:.2f}%<extra></extra>",
+        yaxis="y2",
+    )
+)
+
+fig_clima_rt.add_trace(
+    go.Scatter(
+        x=df["data_ini_SE"],
+        y=df["Rt"],
+        name="Rt",
+        mode="lines+markers",
+        line=dict(color="#eb5757", width=2),
+        marker=dict(size=6),
+        hovertemplate="Semana: %{x|%d/%m/%Y}<br>Rt: %{y:.2f}<extra></extra>",
+        yaxis="y3",
+    )
+)
+
+fig_clima_rt.add_shape(
+    type="line",
+    xref="paper",
+    x0=0,
+    x1=0.86,
+    yref="y3",
+    y0=1,
+    y1=1,
+    line=dict(color="#eb5757", dash="dash", width=1),
+)
+
+fig_clima_rt.update_layout(
+    height=470,
+    hovermode="x unified",
+    legend_title="Indicador",
+    xaxis=dict(
+        domain=[0, 0.86],
+        title="Semana epidemiológica",
+    ),
+    yaxis=dict(
+        title="Casos notificados",
+        rangemode="tozero",
+    ),
+    yaxis2=dict(
+        title="Temperatura (°C) / Umidade (%)",
+        anchor="x",
+        overlaying="y",
+        side="right",
+        showgrid=False,
+    ),
+    yaxis3=dict(
+        title="Rt",
+        anchor="free",
+        overlaying="y",
+        side="right",
+        position=0.98,
+        rangemode="tozero",
+        showgrid=False,
+    ),
+    barmode="overlay",
+)
+
+st.plotly_chart(fig_clima_rt, width="stretch")
+
+
 # =========================
 # Destaques automáticos
 # =========================
